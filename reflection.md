@@ -6,6 +6,8 @@
 
 - Briefly describe your initial UML design.
 
+My UML contains four classes connected by two ownership relationships: `Owner` owns zero or more `Pet` objects, and each `Pet` holds zero or more `Task` objects. `Scheduler` sits outside that chain — it depends on `Owner` and `Pet` to do its work but does not own either. The first three classes are data containers; `Scheduler` is the pure logic layer.
+
 Core User Actions:
 1. Add a pet: 
 The user can enter and save basic information about their pet (like name and species) so the system knows who it is planning for.
@@ -17,6 +19,8 @@ The user can input specific care tasks, such as a walk, and define constraints l
 The user can request the system to generate and display an organized daily plan that sorts and schedules these tasks for them.
 
 - What classes did you include, and what responsibilities did you assign to each?
+
+I included four classes. **Owner** holds the person's name, pet list, available time, and preferences — it manages who owns what. **Pet** holds the animal's name, species, and task list — it groups tasks by animal. **Task** is the core unit of work, storing everything the scheduler needs (duration, priority, category, recurrence, and an optional fixed time). **Scheduler** is a stateless logic engine that reads from `Owner` and `Pet` to sort, filter, resolve conflicts, and produce a daily plan with an explanation.
 
 Below are building blocks for PawPal+:
 1. The Owner Class
@@ -103,6 +107,16 @@ explain_plan(): Generates a human-readable summary explaining the reasoning behi
 **b. Design changes**
 
 - Did your design change during implementation?
+
+1b. Design changes
+After an AI code review of the initial skeletons, I implemented several key architectural changes to prevent data errors and UI bottlenecks:
+* Priority Enum: Converted the priority string into an Enum to prevent silent typing errors (e.g., mistyping "hgih" instead of "high"). I had `priority` as a plain string, but that
+meant a typo like "hgih" would slip through silently and the task would never sort correctly. Using an Enum makes a bad value fail right away.
+* Timeline Tracking: Added a scheduled_start: Optional[str] field to the Task class. While fixed_time is an input constraint, the system needed a way to record the actual assigned time to render a daily timeline on the UI. I  already had `fixed_time`, but
+that's only the time a task *must* happen. I needed a separate field to store the time the scheduler actually *assigned*, so the UI can show a real timeline.
+* Scheduler Logic Realignment: Identified a critical sorting bottleneck. The Scheduler must sort tasks by priority before filtering them by the owner's available time to ensure high-priority tasks are not accidentally dropped. I realized the scheduler has to
+sort tasks by priority *before* filtering by available time. If it filters first, a high-priority task could get dropped just because lower-priority tasks used up the budget.
+
 - If yes, describe at least one change and why you made it.
 
 ---
