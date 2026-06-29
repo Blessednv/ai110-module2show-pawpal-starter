@@ -1,15 +1,23 @@
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Optional
+
+
+class Priority(Enum):
+    HIGH = "high"
+    MEDIUM = "medium"
+    LOW = "low"
 
 
 @dataclass
 class Task:
     title: str
     duration_minutes: int
-    priority: str          # "high", "medium", or "low"
+    priority: Priority     # Priority.HIGH, Priority.MEDIUM, or Priority.LOW
     category: str          # e.g. "feeding", "medication", "exercise"
     recurrence: str        # "daily", "weekly", or "one-off"
-    fixed_time: Optional[str] = None   # e.g. "08:00" if the task must happen at a set time
+    fixed_time: Optional[str] = None       # input constraint: task must happen at this time, e.g. "08:00"
+    scheduled_start: Optional[str] = None  # output: actual time the Scheduler assigned, e.g. "08:30"
     is_completed: bool = False
 
     def mark_complete(self):
