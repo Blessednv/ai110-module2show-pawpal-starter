@@ -53,6 +53,7 @@ class Pet:
 
 class Owner:
     def __init__(self, name: str, available_time_minutes: int, preferences: dict = None):
+        """Create an owner with a daily time budget and optional preferences."""
         self.name = name
         self.available_time_minutes = available_time_minutes
         self.preferences = preferences or {}
@@ -189,11 +190,13 @@ class Scheduler:
     # --- clock-string <-> minutes-since-midnight helpers ---
     @staticmethod
     def _to_minutes(clock: str) -> int:
+        """Convert an "HH:MM" clock string into minutes since midnight."""
         hours, minutes = clock.split(":")
         return int(hours) * 60 + int(minutes)
 
     @staticmethod
     def _to_clock(minutes: int) -> str:
+        """Convert minutes since midnight back into an "HH:MM" clock string."""
         return f"{minutes // 60:02d}:{minutes % 60:02d}"
 
 
